@@ -1,0 +1,8 @@
+#3.1.a
+import numpy as np
+from pylab import plot, show, ylim, xlabel, ylabel
+data = np.loadtxt("sunspots.txt", float)
+x = data[:, 0]
+y = data[:, 1]
+plot(x, y)
+show()
