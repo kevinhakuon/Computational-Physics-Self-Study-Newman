@@ -68,11 +68,11 @@ def Romberg(index, R_list = [], tolerance = tolerance):
     R_list = []
 
     if(index == 1):
-        R_list.append(trapezoidal(func, index))
+        R_list.append(trapezoidal(func, 2**(index - 1)))
         print(R_list)
         return Romberg(2, R_list)
     else:
-        R_list.append(trapezoidal(func, index))
+        R_list.append(trapezoidal(func, 2**(index - 1)))
 
         for i in range (len(R_temp)):
             R_list.append(iterate(R_temp[i], R_list[i], i + 1))
@@ -83,3 +83,6 @@ def Romberg(index, R_list = [], tolerance = tolerance):
     
     print(R_list)        
     return Romberg(index + 1, R_list)
+            
+
+print(Romberg(1))
