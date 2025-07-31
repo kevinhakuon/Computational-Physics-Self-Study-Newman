@@ -1,26 +1,26 @@
+# (a) adaptive integral
 from math import sqrt, sin, pi
 import numpy as np
 from numpy import empty, arange
 from pylab import imshow, show, gray, plot, scatter
 
-
-def adaptive_trapezoidal (lower_bound, upper_bound, integral = 0, slices = 1, tolerance = 10**-3):
+def adaptive_trapezoidal (lower_bound, upper_bound, integral = 0, slices = 1, tolerance = 1e-6):
     
     func = lambda x : sin(sqrt(100 * x))**2
 
     width = (upper_bound - lower_bound) / slices
 
     previous_result = integral
-
-    integral = (func(lower_bound) + func(upper_bound)) / 2
+    integral = integral / 2
+    
     for i in range(1, slices, 2):
 
         x_value = lower_bound + i * width
-        integral += func(x_value)
+        integral += func(x_value) * width
 
-    error = (integral - previous_result) / 3
-    while(error > tolerance and integral != 0):
-        adaptive_trapezoidal(lower_bound, upper_bound, integral, slices * 2)
+    error = abs((integral - previous_result)) / 3
+    while(error > tolerance or integral == 0.0):
+        return (adaptive_trapezoidal(lower_bound, upper_bound, integral, slices * 2))
     else:
         return integral, error
     
