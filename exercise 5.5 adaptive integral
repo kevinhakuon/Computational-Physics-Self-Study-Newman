@@ -30,3 +30,55 @@ def adaptive_trapezoidal (lower_bound, upper_bound, integral = 0, slices = 1, to
     
 
 print(adaptive_trapezoidal(0, 1))
+
+# (b) Romberg iteration
+
+from math import sqrt, sin, pi
+import numpy as np
+from numpy import empty, arange
+from pylab import imshow, show, gray, plot, scatter
+
+tolerance = 1e-6
+func = lambda x : sin(sqrt(100 * x))**2
+
+def trapezoidal (func, lower_bound, upper_bound, slices):
+
+    width = (upper_bound - lower_bound) / slices
+
+    integral = (func(lower_bound) + func(upper_bound)) / 2
+    for i in range(1, slices):
+        x_value = lower_bound + i * width
+        integral += func(x_value) * width
+
+    return integral
+
+def iterate (R_1, R_2, order):
+    R_3 = R_2 + (R_2 - R_1)/(4**order - 1)
+    return R_3
+
+
+def Romberg(index, R_list = [], tolerance = tolerance):
+
+    error = lambda R_1, R_2, order : abs((R_2 - R_1) / (4**order - 1))
+
+    R_temp = R_list
+    R_list = []
+
+    if(index == 1):
+        R_list.append(trapezoidal(func, 0, 1, index))
+        print(R_list)
+        return Romberg(2, R_list)
+    else:
+        R_list.append(trapezoidal(func, 0, 1, index))
+
+        for i in range (len(R_temp)):
+            R_list.append(iterate(R_temp[i], R_list[i], i + 1))
+
+            if(error(R_temp[i], R_list[i], i + 1) < tolerance):
+                return R_list[i + 1], error(R_temp[i], R_list[i], i + 1)
+    
+    print(R_list)        
+    return Romberg(index + 1, R_list)
+            
+
+print(Romberg(1))
