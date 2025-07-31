@@ -18,11 +18,15 @@ def adaptive_trapezoidal (lower_bound, upper_bound, integral = 0, slices = 1, to
         x_value = lower_bound + i * width
         integral += func(x_value) * width
 
-    error = abs((integral - previous_result)) / 3
-    while(error > tolerance or integral == 0.0):
-        return (adaptive_trapezoidal(lower_bound, upper_bound, integral, slices * 2))
+    if(integral == 0.0):
+        integral += (func(lower_bound) + func(upper_bound)) / 2
+        return adaptive_trapezoidal(lower_bound, upper_bound, integral, 2 * slices)
     else:
-        return integral, error
+        error = abs((integral - previous_result)) / 3
+        if(error > tolerance):
+            return (adaptive_trapezoidal(lower_bound, upper_bound, integral, slices * 2))
+        else:
+            return integral, error
     
 
 print(adaptive_trapezoidal(0, 1))
