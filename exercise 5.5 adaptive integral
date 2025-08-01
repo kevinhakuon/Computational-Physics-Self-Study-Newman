@@ -30,6 +30,7 @@ def adaptive_trapezoidal (lower_bound, upper_bound, integral = 0, slices = 1, to
     
 
 print(adaptive_trapezoidal(0, 1))
+#(0.4558320582782706, 4.740255418004639e-07)
 
 # (b) Romberg iteration
 
@@ -86,3 +87,4 @@ def Romberg(index, R_list = [], tolerance = tolerance):
             
 
 print(Romberg(1))
+#0.45583241782141026, 4.104097345020261e-07
