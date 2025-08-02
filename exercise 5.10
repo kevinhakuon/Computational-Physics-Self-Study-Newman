@@ -11,9 +11,8 @@ S_func = lambda t : sin(pi * t**2 / 2)
 def Gauss_quadrature (lower_bound, upper_bound, func, N = 50):
 
     if(lower_bound == upper_bound):
-        return  0  
-    elif(lower_bound > upper_bound):
-        lower_bound, upper_bound = upper_bound, lower_bound
+        return  0 
+
 
     x, w = roots_legendre(N)
 
@@ -22,15 +21,13 @@ def Gauss_quadrature (lower_bound, upper_bound, func, N = 50):
 
     integral = sum(weight * func(x_value))
 
-    if(lower_bound > upper_bound):
-        return - integral
-    else:
-        return integral
+    return integral
+    
 
 
 def near_field_diffraction (x_lower_bound = -5, x_upper_bound = 5, z_location = 3, wavelength = 1, N = 100):
     
-    u = lambda x, z : x * sqrt(2 / wavelength * z)
+    u = lambda x, z : x * sqrt(2 / (wavelength * z))
 
     x_list = linspace(x_lower_bound, x_upper_bound, N)
     u_list = u(x_list, z_location)
