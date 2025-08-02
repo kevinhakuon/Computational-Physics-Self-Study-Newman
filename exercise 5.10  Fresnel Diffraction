@@ -7,25 +7,30 @@ from scipy.constants import k
 C_func = lambda t : cos(pi * t**2 / 2)
 S_func = lambda t : sin(pi * t**2 / 2)
 
+N = 1500
+x, w = roots_legendre(N)
 
-def Gauss_quadrature (lower_bound, upper_bound, func, N = 50):
+class GaussIntegrator:
 
-    if(lower_bound == upper_bound):
-        return  0 
+    def __init__(self, N):
+        self.N = N
+        self.x, self.w = roots_legendre(N)
+
+    def Gauss_quadrature (self, lower_bound, upper_bound, func):
+
+        if(lower_bound == upper_bound):
+            return  0 
+
+        x_value = (upper_bound - lower_bound) * x / 2 + (upper_bound + lower_bound) / 2
+        weight = (upper_bound - lower_bound) * w / 2
+
+        integral = sum(weight * func(x_value))
+
+        return integral
+        
 
 
-    x, w = roots_legendre(N)
-
-    x_value = (upper_bound - lower_bound) * x / 2 + (upper_bound + lower_bound) / 2
-    weight = (upper_bound - lower_bound) * w / 2
-
-    integral = sum(weight * func(x_value))
-
-    return integral
-    
-
-
-def near_field_diffraction (x_lower_bound = -5, x_upper_bound = 5, z_location = 3, wavelength = 1, N = 100):
+def near_field_diffraction (x_lower_bound = -30, x_upper_bound = 30, z_location = 3, wavelength = 1, N = 2000):
     
     u = lambda x, z : x * sqrt(2 / (wavelength * z))
 
@@ -33,10 +38,12 @@ def near_field_diffraction (x_lower_bound = -5, x_upper_bound = 5, z_location = 
     u_list = u(x_list, z_location)
 
     Intensity = []
+
+    G = GaussIntegrator(N=100)
     
     for u_value in u_list:
-        Intensity.append(((2 * Gauss_quadrature(0, u_value, C_func) + 1)**2 +
-                        (2 * Gauss_quadrature(0, u_value, S_func) + 1)**2) / 8)
+        Intensity.append(((2 * G.Gauss_quadrature(0, u_value, C_func) + 1)**2 +
+                        (2 * G.Gauss_quadrature(0, u_value, S_func) + 1)**2) / 8)
     
     plot(x_list, Intensity)
     show()
