@@ -1,0 +1,38 @@
+import numpy as np
+from numpy import empty, arange, sqrt, sin, cos, pi, exp, linspace
+from pylab import imshow, show, gray, plot, scatter, axhline, loglog
+from scipy.special import roots_legendre
+from scipy.constants import k, hbar, c
+
+
+func = lambda x : x**3 / ((exp(x / (1 - x))) * (1 - x)**5)
+
+class GaussIntegrator:
+
+    def __init__(self, N):
+        self.N = N
+        self.x, self.w = roots_legendre(N)
+
+    def Gauss_quadrature (self, lower_bound, upper_bound, func = func):
+
+        if(lower_bound == upper_bound):
+            return  0 
+
+        x_value = (upper_bound - lower_bound) * self.x / 2 + (upper_bound + lower_bound) / 2
+        weight = (upper_bound - lower_bound) * self.w / 2
+
+        integral = sum(weight * func(x_value))
+
+        return integral
+        
+
+
+def Stefan_Boltzmann (lower_bound = 0, upper_bound = 1, sample_point = 2000, resolution = 50):
+     
+    G_integral = GaussIntegrator(resolution)
+
+    Energy_per_area = G_integral.Gauss_quadrature(lower_bound, upper_bound) * k**4 / (4 * pi**2 * c**2 * hbar**3)
+    
+    return(Energy_per_area)
+
+print(Stefan_Boltzmann())
