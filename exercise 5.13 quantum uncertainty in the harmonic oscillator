@@ -38,7 +38,7 @@ plotting()
 
 (c)
 import numpy as np
-from numpy import empty, arange, sqrt, sin, cos, pi, exp, linspace
+from numpy import empty, arange, sqrt, sin, cos, tan, pi, exp, linspace
 from pylab import imshow, show, gray, plot, scatter, axhline, loglog
 from scipy.special import roots_legendre, factorial
 from scipy.constants import k, hbar, c
@@ -84,10 +84,10 @@ def root_mean_square(n = 5, sample_point = 100):
 
     wave_func = lambda n, x : (1/ sqrt(2 * factorial(n) * sqrt(pi))) * exp(-x**2 / 2) * Hermite_ploynomial(n, x)
 
-    func = lambda x : (2 * x / (1 - x**2)**2) * (x**2/ (1 - x**2))**2 * abs(wave_func(5, (x**2/ (1 - x**2))))**2
+    func = lambda x : (1/ cos(x)**2) * tan(x)**2 * abs(wave_func(5, tan(x)))**2
     
     integral = GaussIntegrator()
-    mean_square = integral.Gauss_quadrature(lower_bound = -1, upper_bound = 1, func = func)
+    mean_square = integral.Gauss_quadrature(lower_bound = -pi / 2, upper_bound = pi / 2, func = func)
 
     return sqrt(mean_square)
 
