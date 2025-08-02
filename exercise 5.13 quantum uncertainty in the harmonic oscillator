@@ -51,9 +51,9 @@ def Hermite_ploynomial (n, x):
     elif(n == 1):
         return 2 * x
     else:
-        for index in range (1, n ):
-            H_mid = 2 * x
-            H_min = 1
+        H_mid = 2 * x
+        H_min = 1
+        for index in range (1, n):
             H_max = 2 * x * H_mid - 2 * index * H_min
             H_min , H_mid = H_min, H_max
 
@@ -63,7 +63,7 @@ def Hermite_ploynomial (n, x):
 
 class GaussIntegrator:
 
-    def __init__(self, N = 1000):
+    def __init__(self, N = 500):
         self.N = N
         self.x, self.w = roots_legendre(N)
 
@@ -84,7 +84,7 @@ def root_mean_square(n = 5, sample_point = 100):
 
     wave_func = lambda n, x : (1/ sqrt(2 * factorial(n) * sqrt(pi))) * exp(-x**2 / 2) * Hermite_ploynomial(n, x)
 
-    func = lambda x : (1/ cos(x)**2) * tan(x)**2 * abs(wave_func(5, tan(x)))**2
+    func = lambda x : (1/ cos(x)**2) * tan(x)**2 * abs(wave_func(n, tan(x)))**2
     
     integral = GaussIntegrator()
     mean_square = integral.Gauss_quadrature(lower_bound = -pi / 2, upper_bound = pi / 2, func = func)
