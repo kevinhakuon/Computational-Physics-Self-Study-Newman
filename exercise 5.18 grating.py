@@ -15,7 +15,7 @@ def intensity_tran_func (u, seperation = 20e-6):
 
 class GaussIntegrator:
 
-    def __init__(self, N = 100):
+    def __init__(self, N = 1000):
         self.N = N
         self.x, self.w = roots_legendre(N)
 
@@ -31,8 +31,8 @@ class GaussIntegrator:
 
         return integral
         
-def Intensity (wavelength = 500e-9, seperation = 20e-6, slit_num = 10,
-               screen_wide = 10e-2, focal_length = 1, sample_point = 500):
+def Intensity (wavelength = 500e-9, seperation = 20e-6, slit_num = 6,
+               screen_wide = 10e-2, focal_length = 1, sample_point = 1000):
     
     total_width = seperation * (slit_num - 1)
 
@@ -43,17 +43,22 @@ def Intensity (wavelength = 500e-9, seperation = 20e-6, slit_num = 10,
     integral = GaussIntegrator()
     intensity_list = abs(integral.Gauss_quadrature(-total_width / 2, total_width / 2, intensity_integrand, x_list)) ** 2
 
+    plot(x_list, intensity_list / np.max(intensity_list))
+    show()
+
     return x_list, intensity_list
 
 def density_plot(x_list, intensity_list):
 
     density_distribution = empty([100, len(x_list)], float)
+    intensity_maxi = np.max(intensity_list)
     for i in range (len(x_list)):
-        density_distribution[:, i] = intensity_list[i]
+        density_distribution[:, i] = intensity_list[i]  / intensity_maxi
 
-    imshow(np.log1p(density_distribution), vmin = 0)
 
+    imshow((density_distribution), vmin = 0)# if u want to clearly see the pattern, u need to set vmax = 0.17
     show()
 
 
 density_plot(*Intensity())
+# I'm not sure about the graph is correct or not, but the number of pattern would not changed with different slit_number so I think there's might be something wrong.
