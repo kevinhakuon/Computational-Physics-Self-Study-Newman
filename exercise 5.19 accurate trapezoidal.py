@@ -22,8 +22,8 @@ def adaptive_trapezoidal (lower_bound, upper_bound,
 
         if(error > tolerance):
 
-            integral_fixed = adaptive_trapezoidal(lower_bound, mid, tolerance = tolerance / 2)
-            + adaptive_trapezoidal(mid, upper_bound, tolerance = tolerance / 2)
+            integral_fixed = (adaptive_trapezoidal(lower_bound, mid, tolerance = tolerance / 2)
+            + adaptive_trapezoidal(mid, upper_bound, tolerance = tolerance / 2))
 
             return integral_fixed
         else:
