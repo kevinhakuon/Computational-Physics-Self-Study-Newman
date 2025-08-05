@@ -72,9 +72,9 @@ from scipy.constants import k, hbar, c
 
 def intensity_tran_func (u, seperation = 20e-6):
     
-    if(u >= -45e-6 and u<=-35e-6):
+    if(u >= -45e-6 and u <=-35e-6):
         intensity_rate = 1
-    elif(u <= 45e-6 and u>= 1e-6):
+    elif(u <= 45e-6 and u >= 25e-6):
         intensity_rate = 1
     else:
         intensity_rate = 0
