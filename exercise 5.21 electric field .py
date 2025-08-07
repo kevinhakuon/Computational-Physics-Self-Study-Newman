@@ -1,29 +1,10 @@
 import numpy as np
-from numpy import empty, arange, sqrt, sin, cos, pi, exp, linspace
+from numpy import empty, arange, sqrt, sin, cos, pi, exp, linspace, log
 from pylab import imshow, show, gray, plot, scatter, axhline, loglog
 from scipy.special import roots_legendre
 from scipy.constants import k, hbar, c, epsilon_0
 
-
-
-class GaussIntegrator:
-
-    def __init__(self, N = 100):
-        self.N = N
-        self.x, self.w = roots_legendre(N)
-
-    def Gauss_quadrature (self, lower_bound, upper_bound, func):
-
-        if(lower_bound == upper_bound):
-            return  0 
-
-        x_value = (upper_bound - lower_bound) * self.x / 2 + (upper_bound + lower_bound) / 2
-        weight = (upper_bound - lower_bound) * self.w / 2
-
-        integral = sum(weight * func(x_value))
-
-        return integral
-        
+#(a)
 def electric_potential (charge, seperation, scale, resolution):
 
     func = lambda r : charge / (4 * pi * epsilon_0 * r)
@@ -45,12 +26,12 @@ def electric_potential (charge, seperation, scale, resolution):
             dis_1 = distant(sample_location, charge_1)
             dis_2 = distant(sample_location, charge_2)
 
-            # if(dis_1 < epsilon):
-            #     dis_1 = epsilon
-            # elif(dis_2 < epsilon):
-            #     dis_2 = epsilon
+            if(dis_1 < epsilon):
+                dis_1 = epsilon
+            elif(dis_2 < epsilon):
+                dis_2 = epsilon
 
-            potential = func(dis_2) * charge - func(dis_1) * charge
+            potential = log(func(dis_2)) * charge - log(func(dis_1)) * charge # avoid the plot explode
             grid[y_index, x_index] = potential
 
     return grid
@@ -65,7 +46,8 @@ def main ():
 
     distribution = electric_potential(charge, seperation, scale, resolution)
 
-    imshow(distribution, extent = [-scale / 2, scale / 2, -scale / 2, scale / 2])
+    imshow(distribution, extent = [-scale / 2, scale / 2, -scale / 2, scale / 2]) #, vmax = 1.2, vmin = -1.2 for show clearly
+    gray()
     show()
 
 main()
