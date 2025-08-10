@@ -4,7 +4,26 @@ from pylab import imshow, show, gray, plot, scatter, axhline, loglog
 from scipy.special import roots_legendre
 from scipy.constants import k, hbar, c, epsilon_0
 
-#(a)
+
+
+class GaussIntegrator:
+
+    def __init__(self, N = 100):
+        self.N = N
+        self.x, self.w = roots_legendre(N)
+
+    def Gauss_quadrature (self, lower_bound, upper_bound, func):
+
+        if(lower_bound == upper_bound):
+            return  0 
+
+        x_value = (upper_bound - lower_bound) * self.x / 2 + (upper_bound + lower_bound) / 2
+        weight = (upper_bound - lower_bound) * self.w / 2
+
+        integral = sum(weight * func(x_value))
+
+        return integral
+        
 def electric_potential (charge, seperation, scale, resolution):
 
     func = lambda r : charge / (4 * pi * epsilon_0 * r)
@@ -31,11 +50,27 @@ def electric_potential (charge, seperation, scale, resolution):
             elif(dis_2 < epsilon):
                 dis_2 = epsilon
 
-            potential = log(func(dis_2)) * charge - log(func(dis_1)) * charge # avoid the plot explode
+            potential = (func(dis_2)) * charge - (func(dis_1)) * charge # avoid the plot explode
             grid[y_index, x_index] = potential
 
     return grid
 
+def electric_field (potential, scale, resolution):
+
+    h = scale / resolution
+
+    row, column = potential.shape
+    electric_field_distribution = np.empty((row, column), float)
+    E_x = np.empty((row, column), float)
+    E_y = E_x
+
+    dx = scale / resolution
+    dy = dx
+
+    E_x, E_y = np.gradient(-potential, dx, dy)
+
+    electric_field_distribution = sqrt(E_x**2 + E_y**2)
+    return electric_field_distribution 
 
 def main ():
 
@@ -45,9 +80,12 @@ def main ():
     resolution = 100
 
     distribution = electric_potential(charge, seperation, scale, resolution)
+    E_field = electric_field(distribution, scale, resolution)
 
-    imshow(distribution, extent = [-scale / 2, scale / 2, -scale / 2, scale / 2]) #, vmax = 1.2, vmin = -1.2 for show clearly
+    imshow(resolution, extent = [-scale / 2, scale / 2, -scale / 2, scale / 2]) #, vmax = 1.2, vmin = -1.2 for show clearly
     gray()
     show()
 
 main()
+
+
