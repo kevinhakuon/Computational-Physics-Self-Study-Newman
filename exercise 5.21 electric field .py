@@ -1,91 +1,63 @@
 import numpy as np
-from numpy import empty, arange, sqrt, sin, cos, pi, exp, linspace, log
-from pylab import imshow, show, gray, plot, scatter, axhline, loglog
-from scipy.special import roots_legendre
-from scipy.constants import k, hbar, c, epsilon_0
+import matplotlib.pyplot as plt
+from numpy import sqrt, linspace
+from scipy.constants import epsilon_0, pi
 
+def electric_potential(charge, separation, scale, resolution):
+    phi_point = lambda r: charge / (4 * pi * epsilon_0 * r)
+    dist = lambda a, b: np.linalg.norm(np.array(a) - np.array(b))
+    q1 = (-separation/2, 0.0)   # negative
+    q2 = ( separation/2, 0.0)   # positive
 
+    eps = 1e-3
+    xs = linspace(-scale/2, scale/2, resolution)
+    ys = linspace(-scale/2, scale/2, resolution)
 
-class GaussIntegrator:
+    phi = np.empty((resolution, resolution), float)
+    for iy, y in enumerate(ys):
+        for ix, x in enumerate(xs):
+            p = (x, y)
+            r1 = max(dist(p, q1), eps)
+            r2 = max(dist(p, q2), eps)
+            phi[iy, ix] = phi_point(r2) - phi_point(r1)  # +q at q2, -q at q1
+    return phi, xs, ys
 
-    def __init__(self, N = 100):
-        self.N = N
-        self.x, self.w = roots_legendre(N)
+def electric_field_from_phi(phi, xs, ys):
+    dx = xs[1] - xs[0]
+    dy = ys[1] - ys[0]
+    dphidy, dphidx = np.gradient(phi, dy, dx)  # order: (y, x)
+    Ex = -dphidx
+    Ey = -dphidy
+    Emag = np.hypot(Ex, Ey)
+    return Ex, Ey, Emag
 
-    def Gauss_quadrature (self, lower_bound, upper_bound, func):
+def main():
+    charge = 1.0
+    separation = 0.1
+    scale = 1.0
+    resolution = 200
 
-        if(lower_bound == upper_bound):
-            return  0 
+    phi, xs, ys = electric_potential(charge, separation, scale, resolution)
+    Ex, Ey, Emag = electric_field_from_phi(phi, xs, ys)
 
-        x_value = (upper_bound - lower_bound) * self.x / 2 + (upper_bound + lower_bound) / 2
-        weight = (upper_bound - lower_bound) * self.w / 2
+    extent = [xs[0], xs[-1], ys[0], ys[-1]]
 
-        integral = sum(weight * func(x_value))
+    plt.figure()
+    plt.title("Potential (phi)")
+    plt.imshow(phi, extent=extent, cmap='seismic', vmin=-1e5, vmax=1e5)  # 調 vmin/vmax 讓對比清楚
+    plt.colorbar()
 
-        return integral
-        
-def electric_potential (charge, seperation, scale, resolution):
+    plt.figure()
+    plt.title("|E| (field magnitude)")
+    plt.imshow(Emag, extent=extent, cmap='magma', vmax=np.percentile(Emag, 99))  # 避免極端值壓色階
+    plt.colorbar()
 
-    func = lambda r : charge / (4 * pi * epsilon_0 * r)
-    distant = lambda a, b : np.linalg.norm(np.array(a) - np.array(b))
-    
-    charge_1 = (-seperation / 2, 0) #negative
-    charge_2 = (seperation / 2, 0) #postive
+    # 疊加電場箭頭（稀疏抽樣一下，避免太密）
+    step = max(1, resolution // 30)
+    X, Y = np.meshgrid(xs, ys)
+    plt.quiver(X[::step, ::step], Y[::step, ::step], Ex[::step, ::step], Ey[::step, ::step], color='white', scale=5e6)
 
-    epsilon = 1e-2
-    x_coordinate = linspace(-scale / 2, scale / 2, resolution)
-    y_coordinate = linspace(-scale / 2, scale / 2, resolution)
+    plt.show()
 
-    grid = np.empty((resolution, resolution), float)
-
-    for y_index, y in enumerate(y_coordinate):
-        for x_index, x in enumerate(x_coordinate):
-            
-            sample_location = (x, y)
-            dis_1 = distant(sample_location, charge_1)
-            dis_2 = distant(sample_location, charge_2)
-
-            if(dis_1 < epsilon):
-                dis_1 = epsilon
-            elif(dis_2 < epsilon):
-                dis_2 = epsilon
-
-            potential = (func(dis_2)) * charge - (func(dis_1)) * charge # avoid the plot explode
-            grid[y_index, x_index] = potential
-
-    return grid
-
-def electric_field (potential, scale, resolution):
-
-    h = scale / resolution
-
-    row, column = potential.shape
-    electric_field_distribution = np.empty((row, column), float)
-    E_x = np.empty((row, column), float)
-    E_y = E_x
-
-    dx = scale / resolution
-    dy = dx
-
-    E_x, E_y = np.gradient(-potential, dx, dy)
-
-    electric_field_distribution = sqrt(E_x**2 + E_y**2)
-    return electric_field_distribution 
-
-def main ():
-
-    charge = 1
-    seperation = 0.1
-    scale = 1
-    resolution = 100
-
-    distribution = electric_potential(charge, seperation, scale, resolution)
-    E_field = electric_field(distribution, scale, resolution)
-
-    imshow(resolution, extent = [-scale / 2, scale / 2, -scale / 2, scale / 2]) #, vmax = 1.2, vmin = -1.2 for show clearly
-    gray()
-    show()
-
-main()
-
-
+if __name__ == "__main__":
+    main()
