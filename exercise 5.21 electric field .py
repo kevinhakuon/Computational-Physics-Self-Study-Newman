@@ -23,8 +23,8 @@ def electric_potential(charge, separation, scale, resolution):
     return phi, xs, ys
 
 def electric_field_from_phi(phi, xs, ys):
-    dx = xs[1] - xs[0]
-    dy = ys[1] - ys[0]
+    dx = 0.01
+    dy = 0.01
     dphidy, dphidx = np.gradient(phi, dy, dx)  # order: (y, x)
     Ex = -dphidx
     Ey = -dphidy
@@ -35,7 +35,7 @@ def main():
     charge = 1.0
     separation = 0.1
     scale = 1.0
-    resolution = 200
+    resolution = 100
 
     phi, xs, ys = electric_potential(charge, separation, scale, resolution)
     Ex, Ey, Emag = electric_field_from_phi(phi, xs, ys)
@@ -44,7 +44,7 @@ def main():
 
     plt.figure()
     plt.title("Potential (phi)")
-    plt.imshow(phi, extent=extent, cmap='seismic', vmin=-1e5, vmax=1e5)  # 調 vmin/vmax 讓對比清楚
+    plt.imshow(phi, extent=extent, cmap='seismic', vmin=-5e9, vmax=5e9)  # 調 vmin/vmax 讓對比清楚
     plt.colorbar()
 
     plt.figure()
@@ -55,7 +55,7 @@ def main():
     # 疊加電場箭頭（稀疏抽樣一下，避免太密）
     step = max(1, resolution // 30)
     X, Y = np.meshgrid(xs, ys)
-    plt.quiver(X[::step, ::step], Y[::step, ::step], Ex[::step, ::step], Ey[::step, ::step], color='white', scale=5e6)
+    plt.quiver(X[::step, ::step], Y[::step, ::step], Ex[::step, ::step], Ey[::step, ::step], color='white', scale=3e11)
 
     plt.show()
 
