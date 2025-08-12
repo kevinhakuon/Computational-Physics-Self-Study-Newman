@@ -9,7 +9,7 @@ from scipy.constants import epsilon_0, pi, hbar
 def H_mn(m, n, width, height, e_mass):
 
     if(m == n):
-        kinetic = (pi**2 * n**2 * hbar**2) / (2 * e_mass * width)
+        kinetic = (pi**2 * n**2 * hbar**2) / (2 * e_mass * width**2)
         potential = height / 2
     elif((m%2) != (n%2)):
         kinetic = 0
@@ -34,16 +34,14 @@ def construct_metric(scale,  width, height, e_mass):
 
 def main():
 
-    m = 1
-    n = 2
     scale = 10
     width = 5e-10
     e_mass = 9.1094e-31
     e_charge = 16022e-19
-    height = 10
+    height = 10 * e_charge
 
     hamilton = construct_metric(scale, width, height, e_mass)
-    energy = np.linalg.eigvalsh(hamilton)
+    energy = np.linalg.eigvalsh(hamilton) / e_charge
 
     print(energy)
 
