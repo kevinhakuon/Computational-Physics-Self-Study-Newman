@@ -9,7 +9,7 @@ def LU_decomposition(arr, v):
 
     row, col = arr.shape
     order = row
-    lower_arr = np.empty([order, order], float)
+    lower_arr = np.zeros([order, order], float)
 
     for i in range (order):
         
@@ -30,7 +30,7 @@ def LU_decomposition(arr, v):
     return lower_arr, upper_arr, v, order
 
 
-def back_substitution(arr, v, order):
+def upper_back_substitution(arr, v, order):
 
     x = np.empty(order, float)
 
@@ -43,6 +43,26 @@ def back_substitution(arr, v, order):
     
     return x
 
+def lower_back_substitution(arr, v, order):
+
+    x = np.zeros(order, float)
+    print(v)
+
+
+    for i in range(order):
+
+        x[i] = v[i]
+        print(x)
+
+        for m in range (0, i, 1):
+            
+            x[i] -= x[m] * arr[i, m]
+        
+        x[i] = x[i] / arr[i, i]
+        arr[i, i] /= arr[i, i]
+
+    return x
+
 def main():
     
     A_i = np.array([[2, 1, 4, 1],
@@ -51,11 +71,15 @@ def main():
                  [2, -2, 1, 3]], float)
     
     v_i = np.array([-4, 3, 9, 7], float)
+    v = v_i.copy()
 
-    L, U, v_f, order = LU_decomposition(A_i, v_i) 
-    x = back_substitution(U, v_f, order)
-    y = L * U * v_i
+    L, U, v_f, order = LU_decomposition(A_i, v) 
+    y = lower_back_substitution(L, v_i, order)
+    x = upper_back_substitution(U, y, order)
+
+    result = np.linalg.solve(A_i, v)
 
     print(x, y)
+    print(result)
 
 main()
