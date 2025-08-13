@@ -34,10 +34,10 @@ def construct_metric(scale,  width, height, e_mass):
 
 def main():
 
-    scale = 10
+    scale = 100
     width = 5e-10
     e_mass = 9.1094e-31
-    e_charge = 16022e-19
+    e_charge = 1.6022e-19
     height = 10 * e_charge
 
     hamilton = construct_metric(scale, width, height, e_mass)
