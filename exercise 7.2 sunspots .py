@@ -10,25 +10,28 @@ from scipy.special import roots_legendre
 def DFT(y):
 
     N = len(y)
-    c = np.zeros(N // 2 + 1, complex)
+    c = np.zeros(N // 2 + 1, dtype = complex)
 
     for k in range (N//2 + 1):
         for n in range (N):
 
-            c[k] += y[n] * exp(-2j * pi * k * n / N)
+            c[k] += y[n] * np.exp(-2j * pi * k * n / N)
 
     return c
 
 
 def main():
 
-    y = np.zeros(1000)
-    for i in range(len(y)):
-        y[i] = i
-    c = DFT(y)
+    data = np.loadtxt("sunspots.txt")
+    month = data[:, 0]
+    sunspots = data[:, 1]
 
-    #plt.plot(y)
-    plt.plot(abs(c))
+    sunspots -= sunspots.mean()
+
+    power_spectrum = (abs(DFT(sunspots)))**2
+
+    plt.plot(power_spectrum)
+    plt.xlim(0, 100)
     plt.show()
 
 
