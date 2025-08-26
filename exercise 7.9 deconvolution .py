@@ -35,21 +35,22 @@ def main():
 
     gauss = lambda x, y : exp(-0.5 * (x**2 + y**2) / sigma**2)
 
-    x_list = np.linspace(0, row, sample_num)
-    y_list = np.linspace(0, col, sample_num)
+    x_list = np.linspace(-row // 2, row // 2, sample_num)
+    y_list = np.linspace(-col // 2, col // 2, sample_num)
 
     X, Y = np.meshgrid(x_list, y_list)
 
     gauss_list = gauss(X, Y)
+    gauss_list /= gauss_list.sum()
 
-    g_k = fft2D(gauss_list)
+    g_k = fft2D(fft.ifftshift(gauss_list))
     b_k = fft2D(data)
 
     a_k = b_k / (g_k * row * col)
 
     a = ifft2D(a_k)
 
-    plt.imshow(np.abs(g_k), cmap='gray')
+    plt.imshow(gauss_list)
     plt.show()
     plt.imshow(np.abs(a), cmap='gray')
     plt.show()
