@@ -1,58 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy
-import math as mt
-from mpl_toolkits.mplot3d import Axes3D
-from numpy import sqrt, linspace, sin, cos, tan, pi, exp
 from scipy import fft
-from scipy.constants import epsilon_0, pi, hbar, h, c, k
-from scipy.special import roots_legendre
 
 def loaddata(name):
+    return np.loadtxt(name)
 
-    data = np.loadtxt(name)
-    return data
-
-def fft2D(y):
-
-    c = fft.fft2(y)
-
-    return c
-
-def ifft2D(c):
-
-    y = fft.ifft2(c)
-
-    return y
+def fft2D(y):   return fft.fft2(y)
+def ifft2D(c):  return fft.ifft2(c)
 
 def main():
+    sigma = 25.0
+    data  = loaddata("blur.txt").astype(float)
+    H, W  = data.shape
 
-    sigma = 25
-    data = loaddata("blur.txt")
-    row, col = data.shape
+    # 1) 在中心建立連續對稱座標
+    y = np.arange(-H//2, H//2)
+    x = np.arange(-W//2, W//2)
+    X, Y = np.meshgrid(x, y)
 
-    sample_num = row
+    # 2) 以「中心為原點」建立高斯
+    gauss_centered = np.exp(-0.5 * (X**2 + Y**2) / (sigma**2))
+    gauss_centered /= gauss_centered.sum()
 
-    gauss = lambda x, y : exp(-0.5 * (x**2 + y**2) / sigma**2)
+    # 3) 移回「左上角為原點」(與 data 一致) —— 注意是 ifftshift，不是 fftshift
+    psf = fft.ifftshift(gauss_centered)
 
-    x_list = np.linspace(-row // 2, row // 2, sample_num)
-    y_list = np.linspace(-col // 2, col // 2, sample_num)
+    # 4) 頻域除法（避免除以接近 0 的頻率；可用 Wiener 式的小常數）
+    G = fft2D(psf)
+    B = fft2D(data)
+    eps = 1e-6                      # 或改成 Wiener：a_k = B * np.conj(G) / (np.abs(G)**2 + K)
+    A_k = B / (G + eps)
 
-    X, Y = np.meshgrid(x_list, y_list)
+    # 5) 反變換 & 取實部
+    a = ifft2D(A_k).real
 
-    gauss_list = gauss(X, Y)
-    gauss_list /= gauss_list.sum()
-
-    g_k = fft2D(fft.ifftshift(gauss_list))
-    b_k = fft2D(data)
-
-    a_k = b_k / (g_k * row * col)
-
-    a = ifft2D(a_k)
-
-    plt.imshow(gauss_list)
-    plt.show()
-    plt.imshow(np.abs(a), cmap='gray')
-    plt.show()
+    # 顯示
+    plt.imshow(data, cmap='gray'); plt.show()
+    plt.imshow(psf, cmap="gray"); plt.title("PSF (peak at top-left)"); plt.show()
+    plt.imshow(a, cmap="gray");   plt.title("Deconvolved"); plt.show()
 
 main()
